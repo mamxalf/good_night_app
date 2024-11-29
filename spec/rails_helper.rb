@@ -69,8 +69,8 @@ RSpec.configure do |config|
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
 
-  # Include Faker methods
-  config.include Faker::Default
+  # FactoryBot configuration
+  config.include FactoryBot::Syntax::Methods
 
   # Clean the database between tests
   config.before(:suite) do
