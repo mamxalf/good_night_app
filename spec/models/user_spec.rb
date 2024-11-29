@@ -5,6 +5,10 @@ RSpec.describe User, type: :model do
     it { should validate_presence_of(:name) }
   end
 
+  describe 'associations' do
+    it { should have_many(:sleep_records).dependent(:destroy) }
+  end
+
   describe 'factory' do
     it 'has a valid factory' do
       user = build(:user)
