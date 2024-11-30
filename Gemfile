@@ -29,6 +29,17 @@ gem "bootsnap", require: false
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin Ajax possible
 # gem "rack-cors"
 
+# dry-rb gems for better code
+gem "dry-validation"
+gem "dry-matcher"
+gem "dry-struct"
+gem "dry-monads"
+gem "dry-container"
+gem "dry-auto_inject"
+
+# To make hash more accessible
+gem "hashie"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
