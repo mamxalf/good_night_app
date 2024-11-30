@@ -2,7 +2,47 @@
 inherit_gem: { rubocop-rails-omakase: rubocop.yml }
 
 # Overwrite or add rules to create your own house style
-#
-# # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`
-# Layout/SpaceInsideArrayLiteralBrackets:
-#   Enabled: false
+
+# Increase max line length to 120 characters
+Layout/LineLength:
+  Max: 120
+
+# Allow block comments
+Style/BlockComments:
+  Enabled: true
+
+# Prefer double quotes for consistency
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+# Allow both styles of lambda literals
+Style/Lambda:
+  EnforcedStyle: literal
+
+# More flexible class documentation requirements
+Style/Documentation:
+  Enabled: false
+
+# Allow multiple empty lines for better code organization
+Layout/EmptyLines:
+  Enabled: true
+
+# More flexible method length
+Metrics/MethodLength:
+  Max: 15
+
+# More reasonable block length for specs and configs
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+    - 'config/**/*'
+
+# Allow safe assignment in conditions
+Lint/AssignmentInCondition:
+  AllowSafeAssignment: true
+
+Style/ClassAndModuleChildren:
+  Enabled: true
+  EnforcedStyle: compact
+  Exclude:
+    - 'config/*'
