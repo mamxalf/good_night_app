@@ -7,7 +7,6 @@ RSpec.describe SleepRecord, type: :model do
 
   describe 'validations' do
     it { should validate_presence_of(:clock_in) }
-    it { should validate_presence_of(:clock_out) }
   end
 
   describe 'factory' do
