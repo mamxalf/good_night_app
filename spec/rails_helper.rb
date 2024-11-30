@@ -72,6 +72,9 @@ RSpec.configure do |config|
   # FactoryBot configuration
   config.include FactoryBot::Syntax::Methods
 
+  # Include time helpers for freezing time in tests
+  config.include ActiveSupport::Testing::TimeHelpers
+
   # Clean the database between tests
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction
