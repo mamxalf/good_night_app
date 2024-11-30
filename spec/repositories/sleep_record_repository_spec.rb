@@ -23,10 +23,42 @@ RSpec.describe SleepRecordRepository do
     end
 
     context 'when required attributes are missing' do
-      it 'raises an error when user is not provided' do
+      it 'return failure with error message' do
         result = repo.clock_in(user: nil)
         expect(result).to be_failure
         expect(result.failure).to eq([ "User must exist" ])
+      end
+    end
+  end
+
+  describe '#find_active_by_user_id' do
+    let(:user) { create(:user) }
+    let(:repo) { described_class }
+
+    context 'when a user has an active sleep record' do
+      before do
+        create(:sleep_record, user: user, clock_in: Time.current, clock_out: nil)
+      end
+
+      it 'returns success with the active sleep record' do
+        result = repo.find_active_by_user_id(user.id)
+        expect(result).to be_success
+        active_record = result.value!
+        expect(active_record).to be_present
+        expect(active_record.user_id).to eq(user.id)
+        expect(active_record.clock_out).to be_nil
+      end
+    end
+
+    context 'when a user does not have an active sleep record' do
+      before do
+        create(:sleep_record, user: user, clock_in: 1.day.ago, clock_out: Time.current)
+      end
+
+      it 'returns failure with error message' do
+        result = repo.find_active_by_user_id(user.id)
+        expect(result).to be_failure
+        expect(result.failure).to eq("SleepRecord not found")
       end
     end
   end
