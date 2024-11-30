@@ -1,0 +1,35 @@
+---
+openapi: 3.0.1
+info:
+  title: Good Night API
+  version: v1
+  description: API documentation for Good Night Application
+paths:
+  "/ping":
+    get:
+      summary: Health check endpoint
+      tags:
+      - Health Check
+      responses:
+        '200':
+          description: server is alive
+servers:
+- url: http://{defaultHost}
+  variables:
+    defaultHost:
+      default: localhost:3000
+components:
+  schemas:
+    error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+    ping_response:
+      type: string
+      example: pong
+tags:
+- name: Health Check
+  description: API health check endpoints
