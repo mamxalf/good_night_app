@@ -13,6 +13,32 @@ paths:
       responses:
         '200':
           description: server is alive
+  "/v1/sleep_records":
+    get:
+      summary: List user's sleep records
+      tags:
+      - Sleep Records
+      parameters:
+      - name: user_id
+        in: query
+        required: true
+        schema:
+          type: integer
+      - name: sort_by
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: sort_direction
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: successful
+        '422':
+          description: invalid parameters
   "/v1/sleep_records/clock_in":
     post:
       summary: Clock in a user's sleep time

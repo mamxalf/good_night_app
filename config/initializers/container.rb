@@ -18,7 +18,18 @@ class Container
     UserClockTimeValidator.new
   end
 
+  register "validators.fetch_all_data" do
+    FetchAllDataValidator.new
+  end
+
   # Use Cases
+  register "use_cases.user_fetch_sleep_record" do
+    UserFetchSleepRecordUseCase.new(
+      fetch_all_data_validator: Container["validators.fetch_all_data"],
+      sleep_record_repository: Container["repositories.sleep_record"]
+    )
+  end
+
   register "use_cases.user_clock_in" do
     UserClockInUseCase.new(
       clock_time_validator: Container["validators.user_clock_time"],

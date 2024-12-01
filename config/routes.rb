@@ -12,7 +12,7 @@ Rails.application.routes.draw do
   get "/ping", to: proc { [ 200, {}, [ "pong" ] ] }
   # v1 router
   namespace :v1 do
-    resource :sleep_records, only: [] do
+    resources :sleep_records, only: [ :index ] do
       post :clock_in, on: :collection
       post :clock_out, on: :collection
     end
