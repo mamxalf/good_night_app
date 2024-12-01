@@ -5,10 +5,10 @@ RSpec.describe UserClockInUseCase do
 
   let(:user_repository) { class_double(UserRepository) }
   let(:sleep_record_repository) { class_double(SleepRecordRepository) }
-  let(:validator) { instance_double(UserClockInValidator) }
+  let(:validator) { instance_double(UserClockTimeValidator) }
   let(:use_case) do
     described_class.new(
-      clock_in_validator: validator,
+      clock_time_validator: validator,
       user_repository: user_repository,
       sleep_record_repository: sleep_record_repository
     )
@@ -19,23 +19,25 @@ RSpec.describe UserClockInUseCase do
     let(:user) { build(:user, id: 1) }
 
     before do
-      allow(sleep_record_repository).to receive(:find_active_by_user_id)
-      allow(user_repository).to receive(:find_by_id)
+      allow(sleep_record_repository).to receive(:find_by_condition)
+      allow(user_repository).to receive(:find_by_condition)
       allow(sleep_record_repository).to receive(:clock_in)
     end
 
     context 'when validation succeeds' do
       before do
         allow(validator).to receive(:call).with(params).and_return(Success(params))
-        allow(user_repository).to receive(:find_by_id).with(params[:user_id]).and_return(Success(user))
+        allow(user_repository).to receive(:find_by_condition)
+          .with(id: params.user_id)
+          .and_return(Success(user))
       end
 
       context 'when user has no active sleep record' do
         let(:sleep_record) { build(:sleep_record, id: 1, user: user) }
 
         before do
-          allow(sleep_record_repository).to receive(:find_active_by_user_id)
-            .with(params[:user_id])
+          allow(sleep_record_repository).to receive(:find_by_condition)
+            .with(user_id: user.id, clock_out: nil)
             .and_return(Failure("SleepRecord not found"))
 
           allow(sleep_record_repository).to receive(:clock_in)
@@ -56,8 +58,8 @@ RSpec.describe UserClockInUseCase do
         let(:active_sleep_record) { build(:sleep_record, user: user) }
 
         before do
-          allow(sleep_record_repository).to receive(:find_active_by_user_id)
-            .with(params[:user_id])
+          allow(sleep_record_repository).to receive(:find_by_condition)
+            .with(user_id: user.id, clock_out: nil)
             .and_return(Success(active_sleep_record))
         end
 
@@ -83,15 +85,15 @@ RSpec.describe UserClockInUseCase do
 
         expect(result).to be_failure
         expect(result.failure).to eq([ "User ID must be present" ])
-        expect(user_repository).not_to have_received(:find_by_id)
+        expect(user_repository).not_to have_received(:find_by_condition)
       end
     end
 
     context 'when user is not found' do
       before do
         allow(validator).to receive(:call).with(params).and_return(Success(params))
-        allow(user_repository).to receive(:find_by_id)
-          .with(params[:user_id])
+        allow(user_repository).to receive(:find_by_condition)
+          .with(id: params.user_id)
           .and_return(Failure("User not found"))
       end
 
@@ -100,7 +102,7 @@ RSpec.describe UserClockInUseCase do
 
         expect(result).to be_failure
         expect(result.failure).to eq("User not found")
-        expect(sleep_record_repository).not_to have_received(:find_active_by_user_id)
+        expect(sleep_record_repository).not_to have_received(:find_by_condition)
       end
     end
   end
