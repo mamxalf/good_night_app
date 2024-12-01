@@ -14,6 +14,22 @@ class GoodNight::Repositories::BaseRepository
       Dry::Monads::Failure(error)
     end
 
+    def all(model_class, conditions: {}, order: nil, limit: nil, offset: nil, includes: [])
+      scope = model_class.includes(includes) if includes.any?
+      scope ||= model_class.all
+
+      scope = scope.where(conditions) if conditions.any?
+      scope = scope.order(order) if order.present?
+      scope = scope.limit(limit) if limit
+      scope = scope.offset(offset) if offset
+
+      Success(scope)
+    rescue ActiveRecord::StatementInvalid => e
+      Failure("Invalid query parameters: #{e.message}")
+    rescue StandardError => e
+      Failure("An error occurred while fetching records: #{e.message}")
+    end
+
     def find_by(model_class, conditions)
       record = model_class.find_by(conditions)
       return Failure("#{model_class.name} not found") if record.nil?

@@ -18,6 +18,13 @@ RSpec.describe SleepRecordRepository do
       expect(result.value!).to eq(sleep_record)
     end
 
+    it 'finds a sleep record by user active' do
+      sleep_record = create(:sleep_record, clock_out: nil)
+      result = repo.find_by_condition(user_id: sleep_record.user_id, clock_out: nil)
+      expect(result).to be_success
+      expect(result.value!).to eq(sleep_record)
+    end
+
     it 'returns failure with error message' do
       result = repo.find_by_condition(id: -1)
       expect(result).to be_failure
@@ -74,7 +81,6 @@ RSpec.describe SleepRecordRepository do
       sleep_record = create(:sleep_record)
       result = repo.find_all_records
       expect(result).to be_success
-      expect(result.value!).to be_a(Array)
       expect(result.value!).to include(sleep_record)
     end
 
