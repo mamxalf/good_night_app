@@ -1,5 +1,5 @@
 class UserRepository < GoodNight::Repositories::BaseRepository
-    def self.find_by_id(id)
-        find_by(User, id: id)
+    def self.find_by_condition(conditions)
+        find_by(User, conditions)
     end
 end
