@@ -13,6 +13,30 @@ paths:
       responses:
         '200':
           description: server is alive
+  "/v1/clock_in":
+    post:
+      summary: Clock in a user's sleep time
+      tags:
+      - Sleep Records
+      parameters: []
+      responses:
+        '201':
+          description: successful
+        '404':
+          description: user not found
+        '422':
+          description: user already clocked in
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  description: ID of the user
+              required:
+              - user_id
 servers:
 - url: http://{defaultHost}
   variables:

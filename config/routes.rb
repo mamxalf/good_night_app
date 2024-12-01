@@ -10,4 +10,10 @@ Rails.application.routes.draw do
   # root "posts#index"
 
   get "/ping", to: proc { [ 200, {}, [ "pong" ] ] }
+  # v1 router
+  namespace :v1 do
+    resource :sleep_records, only: [] do
+      post :clock_in, on: :collection
+    end
+  end
 end
