@@ -1,6 +1,28 @@
 require 'rails_helper'
 
 RSpec.describe SleepRecordRepository do
+  describe '#find_by_id' do
+    let(:repo) { described_class }
+
+    context 'when sleep record exists' do
+      let(:sleep_record) { create(:sleep_record) }
+
+      it 'returns success with the sleep record' do
+        result = repo.find_by_id(sleep_record.id)
+        expect(result).to be_success
+        expect(result.value!).to eq(sleep_record)
+      end
+    end
+
+    context 'when sleep record does not exist' do
+      it 'returns failure with error message' do
+        result = repo.find_by_id(-1)
+        expect(result).to be_failure
+        expect(result.failure).to eq("SleepRecord not found")
+      end
+    end
+  end
+
   describe '#clock_in' do
     let(:user) { create(:user) }
     let(:repo) { described_class }
