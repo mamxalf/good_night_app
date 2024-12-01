@@ -46,3 +46,37 @@ Style/ClassAndModuleChildren:
   EnforcedStyle: compact
   Exclude:
     - 'config/*'
+
+# Indentation rules
+Layout/IndentationWidth:
+  Width: 2
+
+Layout/IndentationStyle:
+  EnforcedStyle: spaces
+
+Layout/IndentationConsistency:
+  EnforcedStyle: normal
+
+Layout/FirstArgumentIndentation:
+  EnforcedStyle: consistent
+
+Layout/FirstArrayElementIndentation:
+  EnforcedStyle: consistent
+
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: consistent
+
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+Layout/MultilineOperationIndentation:
+  EnforcedStyle: indented
+
+Layout/ArgumentAlignment:
+  EnforcedStyle: with_fixed_indentation
+
+Layout/ParameterAlignment:
+  EnforcedStyle: with_fixed_indentation
+
+Layout/EndAlignment:
+  EnforcedStyleAlignWith: start_of_line
