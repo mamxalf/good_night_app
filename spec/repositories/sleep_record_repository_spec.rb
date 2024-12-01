@@ -1,48 +1,27 @@
 require 'rails_helper'
 
 RSpec.describe SleepRecordRepository do
-  describe '#find_by_id' do
+  describe '#find_by_condition' do
     let(:repo) { described_class }
 
-    context 'when sleep record exists' do
-      let(:sleep_record) { create(:sleep_record) }
-
-      it 'returns success with the sleep record' do
-        result = repo.find_by_id(sleep_record.id)
-        expect(result).to be_success
-        expect(result.value!).to eq(sleep_record)
-      end
+    it 'finds a sleep record by id' do
+      sleep_record = create(:sleep_record)
+      result = repo.find_by_condition(id: sleep_record.id)
+      expect(result).to be_success
+      expect(result.value!).to eq(sleep_record)
     end
 
-    context 'when sleep record does not exist' do
-      it 'returns failure with error message' do
-        result = repo.find_by_id(-1)
-        expect(result).to be_failure
-        expect(result.failure).to eq("SleepRecord not found")
-      end
-    end
-  end
-
-  describe '#find_by_user_id' do
-    let(:user) { create(:user) }
-    let(:repo) { described_class }
-
-    context 'when user has sleep records' do
-      let(:sleep_record) { create(:sleep_record, user: user) }
-
-      it 'returns success with the sleep record' do
-        result = repo.find_by_user_id(sleep_record.user_id)
-        expect(result).to be_success
-        expect(result.value!).to eq(sleep_record)
-      end
+    it 'finds a sleep record by user_id' do
+      sleep_record = create(:sleep_record)
+      result = repo.find_by_condition(user_id: sleep_record.user_id)
+      expect(result).to be_success
+      expect(result.value!).to eq(sleep_record)
     end
 
-    context 'when user does not have sleep records' do
-      it 'returns failure with error message' do
-        result = repo.find_by_user_id(-1)
-        expect(result).to be_failure
-        expect(result.failure).to eq("SleepRecord not found")
-      end
+    it 'returns failure with error message' do
+      result = repo.find_by_condition(id: -1)
+      expect(result).to be_failure
+      expect(result.failure).to eq("SleepRecord not found")
     end
   end
 
@@ -88,35 +67,37 @@ RSpec.describe SleepRecordRepository do
     end
   end
 
-  describe '#find_active_by_user_id' do
-    let(:user) { create(:user) }
+  describe '#find_all_records' do
     let(:repo) { described_class }
 
-    context 'when a user has an active sleep record' do
-      before do
-        create(:sleep_record, user: user, clock_in: Time.current, clock_out: nil)
-      end
-
-      it 'returns success with the active sleep record' do
-        result = repo.find_active_by_user_id(user.id)
-        expect(result).to be_success
-        active_record = result.value!
-        expect(active_record).to be_present
-        expect(active_record.user_id).to eq(user.id)
-        expect(active_record.clock_out).to be_nil
-      end
+    it 'finds all sleep records' do
+      sleep_record = create(:sleep_record)
+      result = repo.find_all_records
+      expect(result).to be_success
+      expect(result.value!).to be_a(Array)
+      expect(result.value!).to include(sleep_record)
     end
 
-    context 'when a user does not have an active sleep record' do
-      before do
-        create(:sleep_record, user: user, clock_in: 1.day.ago, clock_out: Time.current)
-      end
+    it 'finds all sleep records with conditions' do
+      sleep_record = create(:sleep_record)
+      result = repo.find_all_records(conditions: { id: sleep_record.id })
+      expect(result).to be_success
+      expect(result.value!).to include(sleep_record)
+    end
 
-      it 'returns failure with error message' do
-        result = repo.find_active_by_user_id(user.id)
-        expect(result).to be_failure
-        expect(result.failure).to eq("SleepRecord not found")
+    it 'finds all sleep records with order' do
+      5.times do |i|
+        create(:sleep_record, created_at: Time.zone.now + i.days)
       end
+      result = repo.find_all_records(sort_by: "created_at", sort_direction: "desc")
+      expect(result).to be_success
+      expect(result.success.map(&:created_at)).to eq(result.success.map(&:created_at).sort.reverse)
+    end
+
+    it 'finds all sleep records with empty result' do
+      result = repo.find_all_records
+      expect(result).to be_success
+      expect(result.value!).to be_empty
     end
   end
 end
