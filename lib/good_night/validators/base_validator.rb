@@ -7,7 +7,7 @@ class GoodNight::Validators::BaseValidator < Dry::Validation::Contract
 
   def call(...)
     result = super
-    return result unless result.success?
+    return Failure(result.errors.to_h) unless result.success?
 
     Success(Hashie::Mash.new(result.to_h))
   end
