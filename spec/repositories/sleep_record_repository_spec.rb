@@ -23,6 +23,29 @@ RSpec.describe SleepRecordRepository do
     end
   end
 
+  describe '#find_by_user_id' do
+    let(:user) { create(:user) }
+    let(:repo) { described_class }
+
+    context 'when user has sleep records' do
+      let(:sleep_record) { create(:sleep_record, user: user) }
+
+      it 'returns success with the sleep record' do
+        result = repo.find_by_user_id(sleep_record.user_id)
+        expect(result).to be_success
+        expect(result.value!).to eq(sleep_record)
+      end
+    end
+
+    context 'when user does not have sleep records' do
+      it 'returns failure with error message' do
+        result = repo.find_by_user_id(-1)
+        expect(result).to be_failure
+        expect(result.failure).to eq("SleepRecord not found")
+      end
+    end
+  end
+
   describe '#clock_in' do
     let(:user) { create(:user) }
     let(:repo) { described_class }
