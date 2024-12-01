@@ -63,4 +63,75 @@ RSpec.describe "V1::SleepRecords", type: :request do
       end
     end
   end
+
+  path "/v1/sleep_records/clock_out" do
+    post("Clock out a user's sleep time") do
+      tags "Sleep Records"
+      consumes "application/json"
+      produces "application/json"
+      parameter name: :params, in: :body, schema: {
+        type: :object,
+        properties: {
+          user_id: { type: :integer, description: "ID of the user" }
+        },
+        required: [ "user_id" ]
+      }
+
+      response(201, "successful") do
+        let(:user) { create(:user) }
+        let!(:sleep_record) { create(:sleep_record, user: user, clock_out: nil) }
+        let(:params) { { user_id: user.id } }
+
+        run_test! do |response|
+          expect(response).to have_http_status(201)
+
+          json = JSON.parse(response.body, symbolize_names: true)
+          expect(json[:data]).to include(
+            id: sleep_record.id,
+            user_id: user.id,
+            clock_in: be_present,
+            clock_out: be_present
+          )
+          expect(json[:message]).to eq("Successfully clocked out")
+          expect(json[:status]).to eq("success")
+        end
+      end
+
+      response(404, "sleep record not found") do
+        let(:params) { { user_id: -1 } }
+
+        run_test! do |response|
+          expect(response).to have_http_status(404)
+
+          json = JSON.parse(response.body, symbolize_names: true)
+          expect(json[:message]).to eq("SleepRecord not found")
+        end
+      end
+
+      response(404, "no active sleep record") do
+        let(:user) { create(:user) }
+        let(:params) { { user_id: user.id } }
+
+        run_test! do |response|
+          expect(response).to have_http_status(404)
+
+          json = JSON.parse(response.body, symbolize_names: true)
+          expect(json[:message]).to eq("SleepRecord not found")
+        end
+      end
+
+      response(404, "already clocked out") do
+        let(:user) { create(:user) }
+        let!(:sleep_record) { create(:sleep_record, user: user, clock_out: Time.current) }
+        let(:params) { { user_id: user.id } }
+
+        run_test! do |response|
+          expect(response).to have_http_status(404)
+
+          json = JSON.parse(response.body, symbolize_names: true)
+          expect(json[:message]).to eq("SleepRecord not found")
+        end
+      end
+    end
+  end
 end

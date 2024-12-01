@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   namespace :v1 do
     resource :sleep_records, only: [] do
       post :clock_in, on: :collection
+      post :clock_out, on: :collection
     end
   end
 end

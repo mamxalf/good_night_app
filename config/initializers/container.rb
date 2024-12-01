@@ -26,6 +26,13 @@ class Container
       sleep_record_repository: Container["repositories.sleep_record"]
     )
   end
+
+  register "use_cases.user_clock_out" do
+    UserClockOutUseCase.new(
+      clock_time_validator: Container["validators.user_clock_time"],
+      sleep_record_repository: Container["repositories.sleep_record"]
+    )
+  end
 end
 
 # Set up auto-injection
