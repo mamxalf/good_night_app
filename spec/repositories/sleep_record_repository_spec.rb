@@ -106,4 +106,108 @@ RSpec.describe SleepRecordRepository do
       expect(result.value!).to be_empty
     end
   end
+
+  describe '#find_all_following_sleep_records' do
+    let(:user) { create(:user) }
+    let(:following_user) { create(:user) }
+    let!(:relationship) { create(:follow_relationship, follower: user, followed: following_user) }
+
+    around do |example|
+      travel_to Time.zone.local(2024, 12, 1, 12, 0, 0) do
+        example.run
+      end
+    end
+
+    let!(:sleep_record1) do
+      create(:sleep_record,
+        user: following_user,
+        clock_in: 2.days.ago,
+        clock_out: 1.day.ago)
+    end
+    let!(:sleep_record2) do
+      create(:sleep_record,
+        user: following_user,
+        clock_in: 4.days.ago,
+        clock_out: 3.days.ago)
+    end
+
+    context "with default parameters" do
+      it "returns sleep records sorted by duration in descending order" do
+        records = described_class.find_all_following_sleep_records(user: user)
+        expect(records).to be_success
+        expect(records.value!).to eq([ sleep_record2, sleep_record1 ])
+      end
+    end
+
+    context "with custom range" do
+      it "returns records within the specified range" do
+        records = described_class.find_all_following_sleep_records(
+          user: user,
+          range: { amount: 2, unit: "days" }
+        )
+        expect(records).to be_success
+        expect(records.value!).to eq([ sleep_record1 ])
+      end
+    end
+
+    context "with custom sorting" do
+      it "sorts by clock_in in ascending order" do
+        records = described_class.find_all_following_sleep_records(
+          user: user,
+          sort_by: "clock_in",
+          order: "asc"
+        )
+        expect(records).to be_success
+        expect(records.value!).to eq([ sleep_record2, sleep_record1 ])
+      end
+
+      it "sorts by clock_out in descending order" do
+        records = described_class.find_all_following_sleep_records(
+          user: user,
+          sort_by: "clock_out",
+          order: "desc"
+        )
+        expect(records).to be_success
+        expect(records.value!).to eq([ sleep_record1, sleep_record2 ])
+      end
+    end
+
+    context "with invalid parameters" do
+      it "uses default values for invalid range unit" do
+        records = described_class.find_all_following_sleep_records(
+          user: user,
+          range: { amount: 1, unit: "invalid" }
+        )
+        expect(records).to be_success
+        expect(records.value!).not_to be_empty
+      end
+
+      it "uses default values for invalid range amount" do
+        records = described_class.find_all_following_sleep_records(
+          user: user,
+          range: { amount: -1, unit: "week" }
+        )
+        expect(records).to be_success
+        expect(records.value!).not_to be_empty
+      end
+
+      it "uses default values for invalid sort field" do
+        records = described_class.find_all_following_sleep_records(
+          user: user,
+          sort_by: "invalid"
+        )
+        expect(records).to be_success
+        expect(records.value!).not_to be_empty
+      end
+
+      it "uses default values for invalid order" do
+        records = described_class.find_all_following_sleep_records(
+          user: user,
+          order: "invalid"
+        )
+        expect(records).to be_success
+        expect(records.value!).not_to be_empty
+      end
+    end
+  end
 end
