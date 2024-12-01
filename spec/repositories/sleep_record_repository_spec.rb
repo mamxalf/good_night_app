@@ -76,6 +76,18 @@ RSpec.describe SleepRecordRepository do
     end
   end
 
+  describe '#clock_out' do
+    let(:sleep_record) { create(:sleep_record) }
+    let(:repo) { described_class }
+
+    it 'updates the sleep record with clock_out time' do
+      result = repo.clock_out(sleep_record: sleep_record)
+      expect(result).to be_success
+      expect(result.value!).to eq(sleep_record)
+      expect(sleep_record.reload.clock_out).not_to be_nil
+    end
+  end
+
   describe '#find_active_by_user_id' do
     let(:user) { create(:user) }
     let(:repo) { described_class }
