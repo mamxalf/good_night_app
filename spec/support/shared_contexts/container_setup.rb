@@ -32,6 +32,7 @@ RSpec.shared_context "container setup" do
     Container.register("use_cases.user_clock_out") do
       UserClockOutUseCase.new(
         clock_time_validator: Container["validators.user_clock_time"],
+        user_repository: Container["repositories.user"],
         sleep_record_repository: Container["repositories.sleep_record"]
       )
     end

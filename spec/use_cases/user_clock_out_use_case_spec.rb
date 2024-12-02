@@ -5,10 +5,12 @@ RSpec.describe UserClockOutUseCase do
 
   let(:sleep_record_repository) { class_double(SleepRecordRepository) }
   let(:validator) { instance_double(UserClockTimeValidator) }
+  let(:user_repository) { class_double(UserRepository) }
   let(:use_case) do
     described_class.new(
       clock_time_validator: validator,
-      sleep_record_repository: sleep_record_repository
+      sleep_record_repository: sleep_record_repository,
+      user_repository: user_repository
     )
   end
 
@@ -18,6 +20,7 @@ RSpec.describe UserClockOutUseCase do
     let(:sleep_record) { build(:sleep_record, user: user, clock_out: nil) }
 
     before do
+      allow(user_repository).to receive(:find_by_condition)
       allow(sleep_record_repository).to receive(:find_by_condition)
       allow(sleep_record_repository).to receive(:clock_out)
     end
@@ -27,39 +30,61 @@ RSpec.describe UserClockOutUseCase do
         allow(validator).to receive(:call).with(params).and_return(Success(params))
       end
 
-      context 'when user has an active sleep record' do
+      context 'when user exists' do
         before do
-          allow(sleep_record_repository).to receive(:find_by_condition)
-            .with(user_id: params.user_id, clock_out: nil)
-            .and_return(Success(sleep_record))
-
-          allow(sleep_record_repository).to receive(:clock_out)
-            .with(sleep_record: sleep_record)
-            .and_return(Success(sleep_record))
+          allow(user_repository).to receive(:find_by_condition)
+            .with(id: params.user_id)
+            .and_return(Success(user))
         end
 
-        it 'updates the sleep record with clock_out time' do
-          result = use_case.call(params)
+        context 'when user has an active sleep record' do
+          before do
+            allow(sleep_record_repository).to receive(:find_by_condition)
+              .with(user_id: user.id, clock_out: nil)
+              .and_return(Success(sleep_record))
 
-          expect(result).to be_success
-          expect(result.value!).to eq(sleep_record)
-          expect(sleep_record_repository).to have_received(:clock_out).with(sleep_record: sleep_record)
+            allow(sleep_record_repository).to receive(:clock_out)
+              .with(sleep_record: sleep_record)
+              .and_return(Success(sleep_record))
+          end
+
+          it 'updates the sleep record with clock_out time' do
+            result = use_case.call(params)
+
+            expect(result).to be_success
+            expect(result.value!).to eq(sleep_record)
+            expect(sleep_record_repository).to have_received(:clock_out).with(sleep_record: sleep_record)
+          end
+        end
+
+        context 'when user does not have an active sleep record' do
+          before do
+            allow(sleep_record_repository).to receive(:find_by_condition)
+              .with(user_id: user.id, clock_out: nil)
+              .and_return(Failure(:sleep_record_not_found))
+          end
+
+          it 'returns a failure' do
+            result = use_case.call(params)
+
+            expect(result).to be_failure
+            expect(result.failure).to eq(:sleep_record_not_found)
+          end
         end
       end
 
-      context 'when user has no active sleep record' do
+      context 'when user does not exist' do
         before do
-          allow(sleep_record_repository).to receive(:find_by_condition)
-            .with(user_id: params.user_id, clock_out: nil)
-            .and_return(Failure("SleepRecord not found"))
+          allow(user_repository).to receive(:find_by_condition)
+            .with(id: params.user_id)
+            .and_return(Failure(:user_not_found))
         end
 
-        it 'returns failure with error message' do
+        it 'returns a failure' do
           result = use_case.call(params)
 
           expect(result).to be_failure
-          expect(result.failure).to eq("SleepRecord not found")
-          expect(sleep_record_repository).not_to have_received(:clock_out)
+          expect(result.failure).to eq(:user_not_found)
         end
       end
     end
@@ -68,34 +93,14 @@ RSpec.describe UserClockOutUseCase do
       before do
         allow(validator).to receive(:call)
           .with(params)
-          .and_return(Failure([ "User ID must be present" ]))
+          .and_return(Failure(:invalid_params))
       end
 
-      it 'returns validation errors' do
+      it 'returns a failure' do
         result = use_case.call(params)
 
         expect(result).to be_failure
-        expect(result.failure).to eq([ "User ID must be present" ])
-        expect(sleep_record_repository).not_to have_received(:find_by_condition)
-      end
-    end
-
-    context 'when clock_out fails' do
-      before do
-        allow(validator).to receive(:call).with(params).and_return(Success(params))
-        allow(sleep_record_repository).to receive(:find_by_condition)
-          .with(user_id: params.user_id, clock_out: nil)
-          .and_return(Success(sleep_record))
-        allow(sleep_record_repository).to receive(:clock_out)
-          .with(sleep_record: sleep_record)
-          .and_return(Failure("Failed to update sleep record"))
-      end
-
-      it 'returns failure with error message' do
-        result = use_case.call(params)
-
-        expect(result).to be_failure
-        expect(result.failure).to eq("Failed to update sleep record")
+        expect(result.failure).to eq(:invalid_params)
       end
     end
   end

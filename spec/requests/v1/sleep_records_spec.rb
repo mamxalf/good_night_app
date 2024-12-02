@@ -167,8 +167,21 @@ RSpec.describe "V1::SleepRecords", type: :request do
         end
       end
 
-      response(404, "sleep record not found") do
+      response(404, "user not found") do
         let(:params) { { user_id: -1 } }
+
+        run_test! do |response|
+          expect(response).to have_http_status(404)
+
+          json = JSON.parse(response.body, symbolize_names: true)
+          expect(json[:message]).to eq("User not found")
+        end
+      end
+
+      response(404, "sleep record not found") do
+        let(:user) { create(:user) }
+        let!(:sleep_record) { create(:sleep_record, user: user) }
+        let(:params) { { user_id: user.id } }
 
         run_test! do |response|
           expect(response).to have_http_status(404)
