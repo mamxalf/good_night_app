@@ -13,6 +13,60 @@ paths:
       responses:
         '200':
           description: server is alive
+  "/v1/relationships/follow":
+    post:
+      summary: Follow a user
+      tags:
+      - Relationships
+      parameters: []
+      responses:
+        '201':
+          description: relationship created
+        '404':
+          description: follower user not found
+        '422':
+          description: users cannot follow themselves
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                follower_id:
+                  type: integer
+                  description: ID of the user
+                followed_id:
+                  type: integer
+                  description: ID of the user
+              required:
+              - follower_id
+              - followed_id
+  "/v1/relationships/unfollow":
+    post:
+      summary: Unfollow a user
+      tags:
+      - Relationships
+      parameters: []
+      responses:
+        '201':
+          description: successfully unfollowed
+        '404':
+          description: relationship not found
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                follower_id:
+                  type: integer
+                  description: ID of the user
+                followed_id:
+                  type: integer
+                  description: ID of the user
+              required:
+              - follower_id
+              - followed_id
   "/v1/sleep_records":
     get:
       summary: List user's sleep records
