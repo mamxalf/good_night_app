@@ -210,4 +210,74 @@ RSpec.describe SleepRecordRepository do
       end
     end
   end
+
+  describe '.sort_records' do
+    let(:user) { create(:user) }
+    let(:repo) { described_class }
+    let(:frozen_time) { Time.zone.local(2024, 1, 1, 12, 0, 0) }
+
+    before do
+      travel_to frozen_time
+    end
+
+    context 'when sorting by duration' do
+      let!(:record1) { create(:sleep_record, user: user, clock_in: 3.hours.ago, clock_out: 1.hour.ago) }
+      let!(:record2) { create(:sleep_record, user: user, clock_in: 5.hours.ago, clock_out: 2.hours.ago) }
+      let!(:ongoing_record) { create(:sleep_record, user: user, clock_in: 4.hours.ago, clock_out: nil) }
+
+      it 'excludes records with nil clock_out and sorts by duration' do
+        records = [ record1, record2, ongoing_record ]
+        result = repo.send(:sort_records, records, "duration", "asc")
+
+        expect(result).to eq([ record1, record2 ])
+        expect(result).not_to include(ongoing_record)
+      end
+    end
+
+    context 'when sorting by clock_in' do
+      let!(:record1) { create(:sleep_record, user: user, clock_in: 3.hours.ago, clock_out: 1.hour.ago) }
+      let!(:record2) { create(:sleep_record, user: user, clock_in: 5.hours.ago, clock_out: 2.hours.ago) }
+      let!(:ongoing_record) { create(:sleep_record, user: user, clock_in: 4.hours.ago, clock_out: nil) }
+
+      it 'includes all records and sorts by clock_in time' do
+        records = [ record1, record2, ongoing_record ]
+        result = repo.send(:sort_records, records, "clock_in", "asc")
+
+        expect(result).to eq([ record2, ongoing_record, record1 ])
+      end
+    end
+
+    context 'when sorting by clock_out' do
+      let!(:record1) { create(:sleep_record, user: user, clock_in: 3.hours.ago, clock_out: 1.hour.ago) }
+      let!(:record2) { create(:sleep_record, user: user, clock_in: 5.hours.ago, clock_out: 2.hours.ago) }
+      let!(:ongoing_record) { create(:sleep_record, user: user, clock_in: 4.hours.ago, clock_out: nil) }
+
+      it 'puts nil clock_out records at the end when sorting ascending' do
+        records = [ record1, record2, ongoing_record ]
+        result = repo.send(:sort_records, records, "clock_out", "asc")
+
+        expect(result).to eq([ record2, record1, ongoing_record ])
+      end
+
+      it 'puts nil clock_out records at the end when sorting descending' do
+        records = [ record1, record2, ongoing_record ]
+        result = repo.send(:sort_records, records, "clock_out", "desc")
+
+        expect(result).to eq([ ongoing_record, record1, record2 ])
+      end
+    end
+
+    context 'when sorting by created_at' do
+      let!(:record1) { create(:sleep_record, user: user, created_at: 1.hour.ago) }
+      let!(:record2) { create(:sleep_record, user: user, created_at: 2.hours.ago) }
+      let!(:ongoing_record) { create(:sleep_record, user: user, created_at: 1.5.hours.ago, clock_out: nil) }
+
+      it 'includes all records and sorts by created_at time' do
+        records = [ record1, record2, ongoing_record ]
+        result = repo.send(:sort_records, records, "created_at", "asc")
+
+        expect(result).to eq([ record2, ongoing_record, record1 ])
+      end
+    end
+  end
 end
