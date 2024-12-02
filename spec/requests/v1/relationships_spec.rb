@@ -9,14 +9,18 @@ RSpec.describe "V1::Relationships", type: :request do
       tags "Relationships"
       consumes "application/json"
       produces "application/json"
-      parameter name: :relationship, in: :body, schema: {
-        type: :object,
-        properties: {
-          follower_id: { type: :integer, description: "ID of the user" },
-          followed_id: { type: :integer, description: "ID of the user" }
-        },
-        required: [ "follower_id", "followed_id" ]
-      }
+      parameter(
+        name: :relationship,
+        in: :body,
+        schema: {
+          type: :object,
+          properties: {
+            follower_id: { type: :integer, description: "ID of the user" },
+            followed_id: { type: :integer, description: "ID of the user" }
+          },
+          required: [ "follower_id", "followed_id" ]
+        }
+      )
 
       response(201, "relationship created") do
         let(:user1) { create(:user) }
@@ -100,14 +104,18 @@ RSpec.describe "V1::Relationships", type: :request do
       tags "Relationships"
       consumes "application/json"
       produces "application/json"
-      parameter name: :relationship, in: :body, schema: {
-        type: :object,
-        properties: {
-          follower_id: { type: :integer, description: "ID of the user" },
-          followed_id: { type: :integer, description: "ID of the user" }
-        },
-        required: [ "follower_id", "followed_id" ]
-      }
+      parameter(
+        name: :relationship,
+        in: :body,
+        schema: {
+          type: :object,
+          properties: {
+            follower_id: { type: :integer, description: "ID of the user" },
+            followed_id: { type: :integer, description: "ID of the user" }
+          },
+          required: [ "follower_id", "followed_id" ]
+        }
+      )
 
       response(201, "successfully unfollowed") do
         let(:user1) { create(:user) }
@@ -176,14 +184,43 @@ RSpec.describe "V1::Relationships", type: :request do
     get "Get following users' sleep records" do
       tags "Relationships"
       produces "application/json"
-      parameter name: :user_id, in: :query, type: :integer, required: true
-      parameter name: :range_amount, in: :query, type: :integer, required: false, description: "Defaults to 1"
-      parameter name: :range_unit, in: :query, type: :string, required: false, enum: [ 'days', 'weeks', 'months' ],
+      parameter(
+        name: :user_id,
+        in: :query,
+        schema: { type: :integer },
+        required: true
+      )
+      parameter(
+        name: :range_amount,
+        in: :query,
+        schema: { type: :integer },
+        required: false,
+        description: "Defaults to 1"
+      )
+      parameter(
+        name: :range_unit,
+        in: :query,
+        schema: { type: :string, enum: [ 'days', 'weeks', 'months' ] },
+        required: false,
         description: "Defaults to 'week'"
-      parameter name: :sort_by, in: :query, type: :string, required: false, enum: [ 'created_at', 'duration' ],
+      )
+      parameter(
+        name: :sort_by,
+        in: :query,
+        schema: {
+          type: :string,
+          enum: [ 'created_at', 'clock_in', 'clock_out', 'duration' ]
+        },
+        required: false,
         description: "Defaults to 'duration'"
-      parameter name: :sort_direction, in: :query, type: :string, required: false, enum: [ 'asc', 'desc' ],
+      )
+      parameter(
+        name: :sort_direction,
+        in: :query,
+        schema: { type: :string, enum: [ 'asc', 'desc' ] },
+        required: false,
         description: "Defaults to 'desc'"
+      )
 
       response(200, "successfully fetched sleep records") do
         let(:user1) { create(:user) }

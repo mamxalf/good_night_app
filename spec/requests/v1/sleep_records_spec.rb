@@ -8,9 +8,29 @@ RSpec.describe "V1::SleepRecords", type: :request do
       tags "Sleep Records"
       consumes "application/json"
       produces "application/json"
-      parameter name: :user_id, in: :query, type: :integer, required: true
-      parameter name: :sort_by, in: :query, type: :string, required: true
-      parameter name: :sort_direction, in: :query, type: :string, required: true
+      parameter(
+        name: :user_id,
+        in: :query,
+        schema: { type: :integer },
+        required: true
+      )
+      parameter(
+        name: :sort_by,
+        in: :query,
+        schema: {
+          type: :string,
+          enum: [ 'created_at', 'clock_in', 'clock_out' ]
+        },
+        required: true,
+        description: "Sort records by created_at, clock_in, or clock_out"
+      )
+      parameter(
+        name: :sort_direction,
+        in: :query,
+        schema: { type: :string, enum: [ 'asc', 'desc' ] },
+        required: true,
+        description: "Sort direction ascending or descending"
+      )
 
       response(200, "successful") do
         let(:user) { create(:user) }
