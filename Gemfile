@@ -50,6 +50,9 @@ group :development, :test do
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
 
+  # Help to kill N+1 queries and unused eager loading
+  gem "bullet"
+
   # Testing framework for Rails
   gem "rspec-rails"
   gem "factory_bot_rails"

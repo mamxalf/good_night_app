@@ -64,4 +64,12 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
+
+  # Configure Bullet for N+1 query detection
+  config.after_initialize do
+    Bullet.enable = true
+    Bullet.bullet_logger = true
+    Bullet.raise = true # raise an error if N+1 query is detected
+    Bullet.unused_eager_loading_enable = false # Disable unused eager loading detection during tests
+  end
 end
