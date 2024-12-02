@@ -47,13 +47,19 @@ class SleepRecordRepository < GoodNight::Repositories::BaseRepository
   end
 
   private_class_method def self.sort_records(records, sort_by, order)
+    # Filter out records with nil clock_out when sorting by duration
+    sortable_records = sort_by == "duration" ? records.reject { |r| r.clock_out.nil? } : records
+
     sorted = case sort_by
     when "duration"
-      records.sort_by { |r| r.clock_out - r.clock_in }
+      sortable_records.sort_by { |r| r.clock_out - r.clock_in }
     when "clock_in"
-      records.sort_by(&:clock_in)
+      sortable_records.sort_by(&:clock_in)
     when "clock_out"
-      records.sort_by(&:clock_out)
+      # Put nil clock_out records at the end when sorting by clock_out
+      sortable_records.sort_by { |r| r.clock_out || Time.current }
+    else # "created_at"
+      sortable_records.sort_by(&:created_at)
     end
 
     order == "desc" ? sorted.reverse : sorted
