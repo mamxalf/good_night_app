@@ -211,15 +211,15 @@ RSpec.describe "V1::Relationships", type: :request do
           type: :string,
           enum: [ 'created_at', 'clock_in', 'clock_out', 'duration' ]
         },
-        required: false,
-        description: "Defaults to 'duration'"
+        required: true,
+        description: "Sort records by created_at, clock_in, clock_out, or duration"
       )
       parameter(
         name: :sort_direction,
         in: :query,
         schema: { type: :string, enum: [ 'asc', 'desc' ] },
-        required: false,
-        description: "Defaults to 'desc'"
+        required: true,
+        description: "Sort direction ascending or descending"
       )
 
       response(200, "successfully fetched sleep records") do

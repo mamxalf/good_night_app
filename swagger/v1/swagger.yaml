@@ -103,8 +103,8 @@ paths:
           - clock_in
           - clock_out
           - duration
-        required: false
-        description: Defaults to 'duration'
+        required: true
+        description: Sort records by created_at, clock_in, clock_out, or duration
       - name: sort_direction
         in: query
         schema:
@@ -112,8 +112,8 @@ paths:
           enum:
           - asc
           - desc
-        required: false
-        description: Defaults to 'desc'
+        required: true
+        description: Sort direction ascending or descending
       responses:
         '200':
           description: successfully fetched sleep records with created_at sorting
