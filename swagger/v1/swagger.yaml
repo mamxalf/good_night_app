@@ -67,6 +67,58 @@ paths:
               required:
               - follower_id
               - followed_id
+  "/v1/relationships/sleeping_records":
+    get:
+      summary: Get following users' sleep records
+      tags:
+      - Relationships
+      parameters:
+      - name: user_id
+        in: query
+        required: true
+        schema:
+          type: integer
+      - name: range_amount
+        in: query
+        required: false
+        description: Defaults to 1
+        schema:
+          type: integer
+      - name: range_unit
+        in: query
+        required: false
+        enum:
+        - days
+        - weeks
+        - months
+        description: "Defaults to 'week':\n * `days` \n * `weeks` \n * `months` \n "
+        schema:
+          type: string
+      - name: sort_by
+        in: query
+        required: false
+        enum:
+        - created_at
+        - duration
+        description: Defaults to 'duration'
+        schema:
+          type: string
+      - name: sort_direction
+        in: query
+        required: false
+        enum:
+        - asc
+        - desc
+        description: Defaults to 'desc'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: successfully fetched sleep records with created_at sorting
+        '404':
+          description: user not found
+        '422':
+          description: invalid sort parameters
   "/v1/sleep_records":
     get:
       summary: List user's sleep records

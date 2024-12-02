@@ -5,6 +5,7 @@ class V1::RelationshipsController < ApplicationController
       super
       @user_follow_relationship = Container["use_cases.user_follow"]
       @user_unfollow_relationship = Container["use_cases.user_unfollow"]
+      @user_fetch_following_sleep_record = Container["use_cases.user_fetch_following_sleep_record"]
     end
 
     def follow
@@ -26,6 +27,18 @@ class V1::RelationshipsController < ApplicationController
             message: "Successfully unfollowed",
             status: "success"
           }, status: :created
+        end
+    end
+
+    def sleeping_records
+        result = @user_fetch_following_sleep_record.call(params.permit(:user_id, :range_amount, :range_unit, :sort_by,
+          :sort_direction).to_h)
+        handle_result(result) do |response|
+          render json: {
+            data: response,
+            message: "Successfully fetched sleep records",
+            status: "success"
+          }, status: :ok
         end
     end
 end

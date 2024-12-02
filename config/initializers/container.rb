@@ -68,6 +68,14 @@ class Container
       following_relationship_repository: Container["repositories.following_relationship"]
     )
   end
+
+  register "use_cases.user_fetch_following_sleep_record" do
+    UserFetchFollowingSleepRecordUseCase.new(
+      fetch_all_data_validator: Container["validators.fetch_all_data"],
+      user_repository: Container["repositories.user"],
+      sleep_record_repository: Container["repositories.sleep_record"]
+    )
+  end
 end
 
 # Set up auto-injection
