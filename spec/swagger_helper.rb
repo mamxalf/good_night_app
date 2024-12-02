@@ -35,17 +35,6 @@ RSpec.configure do |config|
       ],
       components: {
         schemas: {
-          error: {
-            type: :object,
-            properties: {
-              errors: {
-                type: :array,
-                items: {
-                  type: :string
-                }
-              }
-            }
-          },
           ping_response: {
             type: :string,
             example: 'pong'
