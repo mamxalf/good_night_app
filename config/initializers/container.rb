@@ -60,6 +60,14 @@ class Container
       following_relationship_repository: Container["repositories.following_relationship"]
     )
   end
+
+  register "use_cases.user_unfollow" do
+    UserUnfollowUseCase.new(
+      relationship_validator: Container["validators.relationship"],
+      user_repository: Container["repositories.user"],
+      following_relationship_repository: Container["repositories.following_relationship"]
+    )
+  end
 end
 
 # Set up auto-injection

@@ -19,6 +19,7 @@ Rails.application.routes.draw do
 
     resources :relationships, only: [] do
       post :follow, on: :collection
+      post :unfollow, on: :collection
     end
   end
 end
