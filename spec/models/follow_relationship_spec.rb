@@ -12,7 +12,7 @@ RSpec.describe FollowRelationship, type: :model do
       follow_relationship.save
       duplicate_follow_relationship = build(:follow_relationship, follower: follower, followed: followed)
       expect(duplicate_follow_relationship).not_to be_valid
-      expect(duplicate_follow_relationship.errors[:follower_id]).to include("has already been taken")
+      expect(duplicate_follow_relationship.errors[:follower_id]).to include("Relationship already exists")
     end
 
     it 'is valid with valid attributes' do

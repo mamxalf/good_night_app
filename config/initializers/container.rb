@@ -13,6 +13,10 @@ class Container
     SleepRecordRepository
   end
 
+  register "repositories.following_relationship" do
+    FollowingRelationshipRepository
+  end
+
   # Validators
   register "validators.user_clock_time" do
     UserClockTimeValidator.new
@@ -20,6 +24,10 @@ class Container
 
   register "validators.fetch_all_data" do
     FetchAllDataValidator.new
+  end
+
+  register "validators.relationship" do
+    RelationshipValidator.new
   end
 
   # Use Cases
@@ -42,6 +50,14 @@ class Container
     UserClockOutUseCase.new(
       clock_time_validator: Container["validators.user_clock_time"],
       sleep_record_repository: Container["repositories.sleep_record"]
+    )
+  end
+
+  register "use_cases.user_follow" do
+    UserFollowUseCase.new(
+      relationship_validator: Container["validators.relationship"],
+      user_repository: Container["repositories.user"],
+      following_relationship_repository: Container["repositories.following_relationship"]
     )
   end
 end

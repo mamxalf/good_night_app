@@ -16,5 +16,9 @@ Rails.application.routes.draw do
       post :clock_in, on: :collection
       post :clock_out, on: :collection
     end
+
+    resources :relationships, only: [] do
+      post :follow, on: :collection
+    end
   end
 end
